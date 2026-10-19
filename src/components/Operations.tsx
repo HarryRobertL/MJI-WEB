@@ -1,10 +1,14 @@
 import { contact } from "../content";
+import { useReveal } from "../useReveal";
+import { EnquiryForm } from "./EnquiryForm";
 
 export function Operations() {
+  const introRef = useReveal<HTMLDivElement>();
+
   return (
     <section className="section" id="contact" tabIndex={-1} aria-labelledby="contact-title">
       <div className="wrap">
-        <div className="section-intro center animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
+        <div ref={introRef} className="section-intro center reveal">
           <p className="eyebrow">Mayfair</p>
           <h2 id="contact-title">Contact</h2>
           <p>
@@ -34,6 +38,8 @@ export function Operations() {
             </a>
           </div>
         </div>
+
+        <EnquiryForm />
       </div>
     </section>
   );

@@ -1,4 +1,4 @@
-import { navItems } from "../content";
+import { company, contact, navItems } from "../content";
 
 export function Footer() {
   return (
@@ -12,7 +12,10 @@ export function Footer() {
             height={114}
             className="footer-mark"
           />
-          <p>Specialist physical security and risk consultancy for high-risk and complex global operations.</p>
+          <p>
+            Specialist physical security and risk consultancy for high-risk and
+            complex global operations.
+          </p>
         </div>
         <nav aria-label="Footer">
           <ul className="footer-links">
@@ -23,9 +26,32 @@ export function Footer() {
                 </a>
               </li>
             ))}
+            <li>
+              <a className="more" href="/privacy.html">
+                Privacy
+              </a>
+            </li>
           </ul>
         </nav>
       </div>
+
+      <div className="wrap footer-legal">
+        <p>
+          {company.registeredName}. Registered in {company.placeOfRegistration}.
+          Company number {company.companyNumber}.
+        </p>
+        <p>
+          Registered office: {company.registeredOffice.join(", ")}.
+        </p>
+        <p>
+          <a href={contact.emailHref}>{contact.email}</a>
+          {" · "}
+          <a href={contact.phoneHref}>{contact.phone}</a>
+          {" · "}
+          <a href="/privacy.html">Privacy policy</a>
+        </p>
+      </div>
+
       <div className="wrap footer-base">
         <p>© {new Date().getFullYear()} McKenzie Jones INTL. All rights reserved.</p>
       </div>

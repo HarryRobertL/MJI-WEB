@@ -125,7 +125,7 @@ button:focus-visible {
   justify-content: center;
   background: var(--paper);
   opacity: 1;
-  transition: opacity 700ms ease;
+  transition: opacity 150ms ease;
 }
 
 .preloader.is-leaving {
@@ -154,6 +154,19 @@ button:focus-visible {
 
 .skip-link:focus {
   top: 12px;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 600ms ease,
+    transform 600ms ease;
+}
+
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .wrap {
@@ -810,13 +823,207 @@ button:focus-visible {
   list-style: none;
 }
 
+.footer-legal {
+  padding: 0 0 20px;
+  color: var(--slate);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.footer-legal p {
+  margin: 0 0 8px;
+}
+
+.footer-legal a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer-legal a:hover {
+  text-decoration: underline;
+}
+
 .footer-base {
   padding: 16px 0 28px;
   border-top: 1px solid var(--slate);
   font-weight: 500;
 }
 
+.enquiry {
+  margin-top: 40px;
+  padding: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--paper) 92%, white);
+}
+
+.enquiry-intro {
+  margin-bottom: 20px;
+}
+
+.enquiry-intro h3 {
+  margin-bottom: 8px;
+}
+
+.enquiry-form {
+  display: grid;
+  gap: 16px;
+}
+
+.enquiry-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.enquiry-field {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.enquiry-field span {
+  font-size: 13px;
+}
+
+.enquiry-field input,
+.enquiry-field select,
+.enquiry-field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--slate);
+  border-radius: var(--radius-card);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 500;
+}
+
+.enquiry-field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.enquiry-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.enquiry-consent input {
+  margin-top: 3px;
+  flex: none;
+}
+
+.enquiry-consent a {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.enquiry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.enquiry-honeypot {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.enquiry-status {
+  min-height: 1.4em;
+}
+
+.enquiry-success,
+.enquiry-error {
+  margin: 0;
+  font-weight: 600;
+}
+
+.enquiry-success {
+  color: var(--ink);
+}
+
+.enquiry-error {
+  color: #7a2e2e;
+}
+
+.enquiry-error a {
+  color: inherit;
+  font-weight: 700;
+}
+
+.mobile-contact-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  border-top: 1px solid var(--color-border);
+  backdrop-filter: blur(10px);
+}
+
+.mobile-contact-bar .btn {
+  width: 100%;
+}
+
+.privacy-page {
+  padding-top: 40px;
+}
+
+.privacy-header {
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  min-height: 72px;
+  padding-block: 0 !important;
+}
+
+.privacy-header .brand {
+  margin-inline: 0;
+}
+
+.privacy-copy {
+  max-width: 42rem;
+}
+
+.privacy-copy h1 {
+  margin-bottom: 16px;
+}
+
+.privacy-copy h2 {
+  margin: 28px 0 10px;
+  font-size: clamp(24px, 3vw, 32px);
+}
+
+.privacy-copy ul {
+  margin: 0 0 16px;
+  padding-left: 1.2rem;
+}
+
+.privacy-copy li {
+  margin-bottom: 6px;
+}
+
 @media (min-width: 768px) {
+  .enquiry-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .about-grid,
   .service-grid,
   .stat-grid,
@@ -1001,6 +1208,14 @@ button:focus-visible {
 @media (max-width: 991px) {
   :root {
     --header-offset: 108px;
+  }
+
+  body {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+
+  .brand {
+    margin-inline: auto;
   }
 
   .hero {
@@ -1214,6 +1429,12 @@ button:focus-visible {
 
   .hero-aurora-glow::after {
     animation: none;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 
   *,

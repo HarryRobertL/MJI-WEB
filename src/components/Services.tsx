@@ -2,6 +2,7 @@ import { Briefcase, Crosshair, GraduationCap, Radar, Shield, Siren, type LucideI
 import { useEffect, useState } from "react";
 import { services } from "../content";
 import { useHash } from "../useHash";
+import { useReveal } from "../useReveal";
 import {
   Accordion,
   AccordionContent,
@@ -26,6 +27,7 @@ function serviceIdFromHash(hash: string) {
 
 export function Services() {
   const hash = useHash();
+  const introRef = useReveal<HTMLDivElement>();
   const [open, setOpen] = useState<string[]>(() => {
     const id = serviceIdFromHash(window.location.hash);
     return id ? [id] : [];
@@ -43,7 +45,7 @@ export function Services() {
   return (
     <section className="section" id="services" tabIndex={-1} aria-labelledby="services-title">
       <div className="wrap">
-        <div className="section-intro center animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
+        <div ref={introRef} className="section-intro center reveal">
           <p className="eyebrow">Services portfolio</p>
           <h2 id="services-title">Intelligence-led security services</h2>
           <p>

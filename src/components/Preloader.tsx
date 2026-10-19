@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Spinner } from "./ui/spinner-1";
 
+const MIN_VISIBLE_MS = 80;
+const FADE_MS = 150;
+
 export function Preloader() {
   const [phase, setPhase] = useState<"in" | "out" | "gone">("in");
 
@@ -11,7 +14,7 @@ export function Preloader() {
 
     frame = window.requestAnimationFrame(() => {
       frame = window.requestAnimationFrame(() => {
-        const remaining = Math.max(0, 700 - (performance.now() - started));
+        const remaining = Math.max(0, MIN_VISIBLE_MS - (performance.now() - started));
         hideTimer = window.setTimeout(() => setPhase("out"), remaining);
       });
     });
@@ -32,13 +35,14 @@ export function Preloader() {
       role="status"
       aria-live="polite"
       aria-label="Loading"
+      style={{ transitionDuration: `${FADE_MS}ms` }}
       onTransitionEnd={(event) => {
         if (event.propertyName === "opacity" && phase === "out") {
           setPhase("gone");
         }
       }}
     >
-      <Spinner size={40} />
+      <Spinner size={36} />
     </div>
   );
 }

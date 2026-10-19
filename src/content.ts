@@ -201,9 +201,29 @@ export const contact = {
   emailHref: "mailto:info@mckenziejonesinternational.com",
 } as const;
 
+/** Fill placeholders before launch. Search for `[COMPANY` to find them. */
+export const company = {
+  registeredName: "McKenzie Jones International Ltd",
+  companyNumber: "[COMPANY NUMBER]",
+  placeOfRegistration: "England and Wales",
+  registeredOffice: [
+    "45 Albemarle Street",
+    "3rd Floor",
+    "Mayfair",
+    "London",
+    "W1S 4JL",
+    "United Kingdom",
+  ],
+} as const;
+
+/** Empty until real accreditations or case outcomes are supplied. */
+export const credentials: ReadonlyArray<{ title: string; detail?: string }> = [];
+
 export const navItems = [
   { href: "#services", label: "Services" },
   { href: "#about", label: "About" },
   { href: "#clients", label: "Clients" },
   { href: "#contact", label: "Contact" },
 ] as const;
+
+export const siteUrl = "https://mji-web.vercel.app";

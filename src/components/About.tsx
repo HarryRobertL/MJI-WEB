@@ -1,10 +1,13 @@
-import { audiences, personnel, values } from "../content";
+import { audiences, credentials, personnel, values } from "../content";
+import { useReveal } from "../useReveal";
 
 export function About() {
+  const introRef = useReveal<HTMLDivElement>();
+
   return (
     <section className="section" id="about" tabIndex={-1} aria-labelledby="about-title">
       <div className="wrap about-grid">
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
+        <div ref={introRef} className="reveal">
           <p className="eyebrow">The firm</p>
           <h2 id="about-title">About McKenzie Jones INTL</h2>
         </div>
@@ -46,6 +49,19 @@ export function About() {
               ))}
             </ul>
           </div>
+          {credentials.length > 0 ? (
+            <div>
+              <h3>Credentials</h3>
+              <ul className="scope">
+                {credentials.map((item) => (
+                  <li key={item.title}>
+                    <strong>{item.title}</strong>
+                    {item.detail ? ` — ${item.detail}` : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

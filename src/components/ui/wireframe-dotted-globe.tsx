@@ -39,7 +39,8 @@ export default function RotatingEarth({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || size <= 0) {
+    const host = containerRef.current;
+    if (!canvas || !host || size <= 0) {
       return;
     }
 
@@ -48,6 +49,7 @@ export default function RotatingEarth({
       return;
     }
 
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const containerWidth = size;
     const containerHeight = size;
     const radius = Math.min(containerWidth, containerHeight) / 2.5;
@@ -57,7 +59,8 @@ export default function RotatingEarth({
     canvas.height = containerHeight * dpr;
     canvas.style.width = `${containerWidth}px`;
     canvas.style.height = `${containerHeight}px`;
-    context.scale(dpr, dpr);
+    canvas.style.touchAction = "pan-y";
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const projection = d3
       .geoOrthographic()
@@ -183,12 +186,34 @@ export default function RotatingEarth({
     };
 
     let cancelled = false;
+    let autoRotate = !reduceMotion;
+    let inView = true;
+    let rotationTimer: d3.Timer | null = null;
+    const rotation: [number, number] = [0, 0];
+    const rotationSpeed = 0.5;
+
+    const stopRotation = () => {
+      rotationTimer?.stop();
+      rotationTimer = null;
+    };
+
+    const startRotation = () => {
+      if (reduceMotion || rotationTimer || !inView || !autoRotate) {
+        return;
+      }
+      rotationTimer = d3.timer(() => {
+        if (!autoRotate || !inView) {
+          return;
+        }
+        rotation[0] += rotationSpeed;
+        projection.rotate(rotation);
+        render();
+      });
+    };
 
     const loadWorldData = async () => {
       try {
-        const response = await fetch(
-          "https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json",
-        );
+        const response = await fetch("/data/ne_110m_land.json");
         if (!response.ok) {
           throw new Error("Failed to load land data");
         }
@@ -205,6 +230,7 @@ export default function RotatingEarth({
         });
 
         render();
+        startRotation();
       } catch {
         if (!cancelled) {
           setError("Failed to load land map data");
@@ -212,52 +238,64 @@ export default function RotatingEarth({
       }
     };
 
-    const rotation: [number, number] = [0, 0];
-    let autoRotate = true;
-    const rotationSpeed = 0.5;
-
-    const rotationTimer = d3.timer(() => {
-      if (!autoRotate) {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse" || event.button !== 0) {
         return;
       }
-      rotation[0] += rotationSpeed;
-      projection.rotate(rotation);
-      render();
-    });
 
-    const handleMouseDown = (event: MouseEvent) => {
       autoRotate = false;
+      stopRotation();
       const startX = event.clientX;
       const startY = event.clientY;
-      const startRotation: [number, number] = [rotation[0], rotation[1]];
+      const startRotationAngles: [number, number] = [rotation[0], rotation[1]];
 
-      const handleMouseMove = (moveEvent: MouseEvent) => {
+      const handlePointerMove = (moveEvent: PointerEvent) => {
         const sensitivity = 0.5;
-        rotation[0] = startRotation[0] + (moveEvent.clientX - startX) * sensitivity;
-        rotation[1] = Math.max(-90, Math.min(90, startRotation[1] - (moveEvent.clientY - startY) * sensitivity));
+        rotation[0] = startRotationAngles[0] + (moveEvent.clientX - startX) * sensitivity;
+        rotation[1] = Math.max(
+          -90,
+          Math.min(90, startRotationAngles[1] - (moveEvent.clientY - startY) * sensitivity),
+        );
         projection.rotate(rotation);
         render();
       };
 
-      const handleMouseUp = () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
+      const handlePointerUp = () => {
+        document.removeEventListener("pointermove", handlePointerMove);
+        document.removeEventListener("pointerup", handlePointerUp);
         window.setTimeout(() => {
-          autoRotate = true;
+          if (!reduceMotion) {
+            autoRotate = true;
+            startRotation();
+          }
         }, 10);
       };
 
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("pointermove", handlePointerMove);
+      document.addEventListener("pointerup", handlePointerUp);
     };
 
-    canvas.addEventListener("mousedown", handleMouseDown);
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry?.isIntersecting ?? false;
+        if (inView) {
+          startRotation();
+        } else {
+          stopRotation();
+        }
+      },
+      { threshold: 0.05 },
+    );
+    visibilityObserver.observe(host);
+
+    canvas.addEventListener("pointerdown", handlePointerDown);
     void loadWorldData();
 
     return () => {
       cancelled = true;
-      rotationTimer.stop();
-      canvas.removeEventListener("mousedown", handleMouseDown);
+      stopRotation();
+      visibilityObserver.disconnect();
+      canvas.removeEventListener("pointerdown", handlePointerDown);
     };
   }, [size]);
 

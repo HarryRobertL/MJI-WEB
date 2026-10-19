@@ -4,6 +4,7 @@ import { Coverage } from "./components/Coverage";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
+import { MobileContactBar } from "./components/MobileContactBar";
 import { Operations } from "./components/Operations";
 import { Services } from "./components/Services";
 
@@ -23,6 +24,7 @@ export default function App() {
         <Coverage />
       </main>
       <Footer />
+      <MobileContactBar />
     </>
   );
 }

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { clients } from "../content";
+import { useReveal } from "../useReveal";
 
 export function Coverage() {
+  const introRef = useReveal<HTMLDivElement>();
   const [activeId, setActiveId] = useState<(typeof clients)[number]["id"]>(
     clients[0].id,
   );
@@ -10,7 +12,7 @@ export function Coverage() {
   return (
     <section className="section" id="clients" tabIndex={-1} aria-labelledby="clients-title">
       <div className="wrap">
-        <div className="section-intro animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
+        <div ref={introRef} className="section-intro reveal">
           <p className="eyebrow">Who we serve</p>
           <h2 id="clients-title">Clients</h2>
           <p>

@@ -1,8 +1,8 @@
 import { navItems } from "../content";
-import { useHash } from "../useHash";
+import { useActiveSection } from "../useActiveSection";
 
 export function Header() {
-  const hash = useHash();
+  const activeHref = useActiveSection();
 
   return (
     <header className="site-header" id="top">
@@ -35,7 +35,7 @@ export function Header() {
                 <a
                   className="nav-link"
                   href={item.href}
-                  aria-current={hash === item.href ? "location" : undefined}
+                  aria-current={activeHref === item.href ? "location" : undefined}
                 >
                   {item.label}
                 </a>
