@@ -4,6 +4,10 @@ import RotatingEarth from "./ui/wireframe-dotted-globe";
 export function Hero() {
   return (
     <section className="hero" aria-labelledby="hero-title">
+      <div className="hero-aurora" aria-hidden="true">
+        <div className="hero-aurora-glow" />
+      </div>
+
       <div className="wrap hero-grid">
         <div className="hero-copy">
           <p className="eyebrow animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">

@@ -15,12 +15,31 @@ export default function RotatingEarth({
   height = 480,
   className = "",
 }: RotatingEarthProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [size, setSize] = useState(() => Math.min(width, height));
+
+  useEffect(() => {
+    const host = containerRef.current;
+    if (!host) {
+      return;
+    }
+
+    const updateSize = () => {
+      const next = Math.floor(Math.min(width, height, host.clientWidth || width));
+      setSize((current) => (current === next ? current : next));
+    };
+
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, [width, height]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) {
+    if (!canvas || size <= 0) {
       return;
     }
 
@@ -29,8 +48,8 @@ export default function RotatingEarth({
       return;
     }
 
-    const containerWidth = Math.min(width, window.innerWidth - 40);
-    const containerHeight = Math.min(height, window.innerHeight - 100);
+    const containerWidth = size;
+    const containerHeight = size;
     const radius = Math.min(containerWidth, containerHeight) / 2.5;
 
     const dpr = window.devicePixelRatio || 1;
@@ -240,7 +259,7 @@ export default function RotatingEarth({
       rotationTimer.stop();
       canvas.removeEventListener("mousedown", handleMouseDown);
     };
-  }, [width, height]);
+  }, [size]);
 
   if (error) {
     return (
@@ -251,7 +270,11 @@ export default function RotatingEarth({
   }
 
   return (
-    <div className={`globe ${className}`}>
+    <div
+      ref={containerRef}
+      className={`globe ${className}`}
+      style={{ width: "100%", maxWidth: width }}
+    >
       <canvas ref={canvasRef} aria-label="Rotating world map" />
     </div>
   );

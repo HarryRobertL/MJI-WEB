@@ -1,22 +1,24 @@
-import { useState } from "react";
 import { navItems } from "../content";
 import { useHash } from "../useHash";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "./ui/sheet";
 
 export function Header() {
   const hash = useHash();
-  const [open, setOpen] = useState(false);
 
   return (
     <header className="site-header" id="top">
       <div className="wrap header-bar">
-        <a className="brand" href="#top">
+        <a
+          className="brand"
+          href="#top"
+          onClick={(event) => {
+            event.preventDefault();
+            const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+            if (window.location.hash) {
+              history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+            }
+          }}
+        >
           <img
             src="/mji-logo-300w.png"
             alt="McKenzie Jones International Ltd"
@@ -26,7 +28,7 @@ export function Header() {
           />
         </a>
 
-        <nav className="nav nav-desktop" aria-label="Primary">
+        <nav className="nav" aria-label="Primary">
           <ul className="nav-list">
             {navItems.map((item) => (
               <li key={item.href}>
@@ -40,48 +42,10 @@ export function Header() {
               </li>
             ))}
           </ul>
-          <a className="btn btn-primary" href="#services">
+          <a className="btn btn-primary nav-cta" href="#services">
             View services
           </a>
         </nav>
-
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <button type="button" className="nav-toggle" aria-expanded={open}>
-              {open ? "Close" : "Menu"}
-            </button>
-          </SheetTrigger>
-          <SheetContent side="right" className="nav-sheet w-[min(100%,20rem)]">
-            <SheetHeader>
-              <SheetTitle className="text-left text-base font-semibold tracking-tight">
-                Menu
-              </SheetTitle>
-            </SheetHeader>
-            <nav aria-label="Mobile">
-              <ul className="nav-list flex flex-col gap-1">
-                {navItems.map((item) => (
-                  <li key={item.href}>
-                    <a
-                      className="nav-link block py-2"
-                      href={item.href}
-                      aria-current={hash === item.href ? "location" : undefined}
-                      onClick={() => setOpen(false)}
-                    >
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              <a
-                className="btn btn-primary mt-4 inline-flex"
-                href="#services"
-                onClick={() => setOpen(false)}
-              >
-                View services
-              </a>
-            </nav>
-          </SheetContent>
-        </Sheet>
       </div>
     </header>
   );
