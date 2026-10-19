@@ -1,17 +1,44 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme {
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --color-background: #f8f8f8;
-  --color-foreground: #0c120c;
-  --color-muted: #eef1f4;
-  --color-muted-foreground: #56667a;
-  --color-border: #56667a;
-  --color-card: #f8f8f8;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ring: var(--ring);
   --color-warm: #c8a45d;
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
 }
 
 :root {
+  --background: #f8f8f8;
+  --foreground: #0c120c;
+  --card: #f8f8f8;
+  --card-foreground: #0c120c;
+  --primary: #c8a45d;
+  --primary-foreground: #0c120c;
+  --secondary: #eef1f4;
+  --secondary-foreground: #0c120c;
+  --muted: #eef1f4;
+  --muted-foreground: #56667a;
+  --accent: #eef1f4;
+  --accent-foreground: #0c120c;
+  --border: #56667a;
+  --ring: #c8a45d;
+  --radius: 0.25rem;
   --signal: #c8a45d;
   --electric: #c8a45d;
   --ink: #0c120c;
@@ -88,6 +115,30 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
+.preloader {
+  --foreground: #c8a45d;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  opacity: 1;
+  transition: opacity 700ms ease;
+}
+
+.preloader.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader {
+    transition: none;
+  }
+}
+
 .skip-link {
   position: absolute;
   left: 16px;
@@ -147,6 +198,21 @@ button:focus-visible {
   text-decoration: none;
   box-shadow: none;
   cursor: pointer;
+  transition:
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease,
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+  transition-duration: 100ms;
 }
 
 .btn-primary {
@@ -160,6 +226,7 @@ button:focus-visible {
   background: var(--signal);
   color: var(--ink);
   border-color: var(--ink);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--ink) 18%, transparent);
 }
 
 .btn-secondary {
@@ -172,6 +239,7 @@ button:focus-visible {
 .btn-secondary:hover {
   background: var(--signal);
   color: var(--ink);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--signal) 28%, transparent);
 }
 
 .more {
@@ -179,26 +247,37 @@ button:focus-visible {
   align-items: center;
   gap: 8px;
   width: fit-content;
+  max-width: 100%;
+  flex: 0 0 auto;
   min-height: 44px;
+  padding-inline: 2px;
   color: var(--ink);
   font-weight: 600;
   text-decoration: none;
   border-bottom: 2px solid var(--electric);
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    gap 220ms ease;
 }
 
 .more:hover {
   background: var(--signal);
   border-bottom-color: var(--ink);
+  gap: 12px;
 }
 
 .chevron {
   width: 16px;
   height: 16px;
   color: var(--electric);
+  transition: color 220ms ease, transform 220ms ease;
 }
 
 .more:hover .chevron {
   color: var(--ink);
+  transform: translateX(2px);
 }
 
 .site-header {
@@ -255,21 +334,13 @@ button:focus-visible {
   background: color-mix(in srgb, var(--slate) 16%, var(--paper));
 }
 
-.nav {
+.nav-desktop {
   display: none;
 }
 
-.nav.is-open {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-  padding: 8px 16px 16px;
+.nav-sheet {
   background: var(--paper);
-  border-bottom: 1px solid var(--slate);
+  color: var(--ink);
 }
 
 .nav-list {
@@ -569,12 +640,24 @@ button:focus-visible {
   font-weight: 600;
   text-align: left;
   cursor: pointer;
+  transition:
+    background-color 220ms ease,
+    color 220ms ease,
+    border-color 220ms ease,
+    transform 220ms ease,
+    box-shadow 220ms ease;
 }
 
 .region-btn:hover {
   background: color-mix(in srgb, var(--slate) 14%, var(--paper));
   color: var(--ink);
   border-color: var(--slate);
+  transform: translateX(2px);
+}
+
+.region-btn:active {
+  transform: translateX(0);
+  transition-duration: 100ms;
 }
 
 .region-btn[aria-pressed="true"],
@@ -582,6 +665,8 @@ button:focus-visible {
   background: var(--ink);
   color: var(--signal);
   border-color: var(--signal);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--ink) 16%, transparent);
+  transform: none;
 }
 
 .region-panel {
@@ -824,19 +909,14 @@ button:focus-visible {
     display: none;
   }
 
-  .nav,
-  .nav.is-open {
+  .nav-desktop {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 8px;
-    position: static;
-    padding: 0;
-    border: 0;
-    background: transparent;
   }
 
-  .nav-list {
+  .nav-desktop .nav-list {
     flex-direction: row;
     align-items: center;
   }
@@ -898,6 +978,8 @@ button:focus-visible {
   *,
   *::before,
   *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition: none !important;
   }
 }

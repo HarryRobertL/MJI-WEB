@@ -10,7 +10,7 @@ export function Coverage() {
   return (
     <section className="section" id="clients" tabIndex={-1} aria-labelledby="clients-title">
       <div className="wrap">
-        <div className="section-intro">
+        <div className="section-intro animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
           <p className="eyebrow">Who we serve</p>
           <h2 id="clients-title">Clients</h2>
           <p>

@@ -4,7 +4,7 @@ export function Operations() {
   return (
     <section className="section" id="contact" tabIndex={-1} aria-labelledby="contact-title">
       <div className="wrap">
-        <div className="section-intro center">
+        <div className="section-intro center animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
           <p className="eyebrow">Mayfair</p>
           <h2 id="contact-title">Contact</h2>
           <p>

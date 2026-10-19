@@ -2,6 +2,12 @@ import { Briefcase, Crosshair, GraduationCap, Radar, Shield, Siren, type LucideI
 import { useEffect, useState } from "react";
 import { services } from "../content";
 import { useHash } from "../useHash";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion";
 import { FeatureCard } from "./ui/feature-card";
 
 const icons: Record<(typeof services)[number]["id"], LucideIcon> = {
@@ -20,9 +26,9 @@ function serviceIdFromHash(hash: string) {
 
 export function Services() {
   const hash = useHash();
-  const [open, setOpen] = useState<Record<string, boolean>>(() => {
+  const [open, setOpen] = useState<string[]>(() => {
     const id = serviceIdFromHash(window.location.hash);
-    return id ? { [id]: true } : {};
+    return id ? [id] : [];
   });
 
   useEffect(() => {
@@ -31,13 +37,13 @@ export function Services() {
       return;
     }
 
-    setOpen((current) => (current[id] ? current : { ...current, [id]: true }));
+    setOpen((current) => (current.includes(id) ? current : [...current, id]));
   }, [hash]);
 
   return (
     <section className="section" id="services" tabIndex={-1} aria-labelledby="services-title">
       <div className="wrap">
-        <div className="section-intro center">
+        <div className="section-intro center animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
           <p className="eyebrow">Services portfolio</p>
           <h2 id="services-title">Intelligence-led security services</h2>
           <p>
@@ -46,51 +52,47 @@ export function Services() {
           </p>
         </div>
 
-        <div className="feature-grid">
+        <Accordion
+          type="multiple"
+          value={open}
+          onValueChange={setOpen}
+          className="feature-grid"
+        >
           {services.map((service) => {
             const Icon = icons[service.id];
-            const isOpen = Boolean(open[service.id]);
 
             return (
               <FeatureCard key={service.id}>
-                <article id={service.id} className="feature-body" aria-labelledby={`${service.id}-title`}>
-                  <div className="feature-icon">
-                    <Icon aria-hidden className="size-5" strokeWidth={1.5} />
-                    <span>{service.number}</span>
-                  </div>
-                  <h3 id={`${service.id}-title`}>{service.title}</h3>
-                  <p>{service.summary}</p>
-                  <div id={`${service.id}-detail`} hidden={!isOpen}>
-                    <p>{service.detail}</p>
-                    <ul className="scope">
-                      {service.scope.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <a
-                    className="more"
-                    href={`#${service.id}`}
-                    aria-expanded={isOpen}
-                    aria-controls={`${service.id}-detail`}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      setOpen((current) => ({
-                        ...current,
-                        [service.id]: !current[service.id],
-                      }));
-                    }}
+                <AccordionItem value={service.id} className="border-0">
+                  <article
+                    id={service.id}
+                    className="feature-body"
+                    aria-labelledby={`${service.id}-title`}
                   >
-                    {isOpen ? "Read less" : "Read more"}
-                    <svg className="chevron" viewBox="0 0 16 16" aria-hidden="true">
-                      <path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="1.75" />
-                    </svg>
-                  </a>
-                </article>
+                    <div className="feature-icon">
+                      <Icon aria-hidden className="size-5" strokeWidth={1.5} />
+                      <span>{service.number}</span>
+                    </div>
+                    <h3 id={`${service.id}-title`}>{service.title}</h3>
+                    <p>{service.summary}</p>
+                    <AccordionContent id={`${service.id}-detail`} className="pb-0">
+                      <p>{service.detail}</p>
+                      <ul className="scope">
+                        {service.scope.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </AccordionContent>
+                    <AccordionTrigger className="more mt-auto w-fit flex-none justify-start gap-2 py-0 hover:no-underline [&[data-state=open]_.read-more]:hidden [&[data-state=closed]_.read-less]:hidden [&[data-state=open]>svg]:rotate-90">
+                      <span className="read-more">Read more</span>
+                      <span className="read-less">Read less</span>
+                    </AccordionTrigger>
+                  </article>
+                </AccordionItem>
               </FeatureCard>
             );
           })}
-        </div>
+        </Accordion>
       </div>
     </section>
   );

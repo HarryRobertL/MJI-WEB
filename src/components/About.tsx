@@ -4,7 +4,7 @@ export function About() {
   return (
     <section className="section" id="about" tabIndex={-1} aria-labelledby="about-title">
       <div className="wrap about-grid">
-        <div>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
           <p className="eyebrow">The firm</p>
           <h2 id="about-title">About McKenzie Jones INTL</h2>
         </div>
