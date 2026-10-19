@@ -19,13 +19,23 @@ export function Header() {
             }
           }}
         >
-          <img
-            src="/mji-logo-300w.png"
-            alt="McKenzie Jones International Ltd"
-            width={300}
-            height={114}
-            className="brand-mark"
-          />
+          <span className="brand-mark-wrap">
+            <img
+              src="/mji-logo-1200w.png"
+              alt="McKenzie Jones International Ltd"
+              width={1200}
+              height={456}
+              className="brand-mark brand-mark-base"
+            />
+            <img
+              src="/mji-logo-gold-1200w.png"
+              alt=""
+              width={1200}
+              height={456}
+              className="brand-mark brand-mark-gold"
+              aria-hidden="true"
+            />
+          </span>
         </a>
 
         <nav className="nav" aria-label="Primary">

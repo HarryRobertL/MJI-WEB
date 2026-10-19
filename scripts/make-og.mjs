@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import sharp from "sharp";
 
-const logo = await sharp("public/mji-logo-300w.png")
+const logo = await sharp("public/mji-logo-1200w.png")
   .resize({
     width: 720,
     height: 274,
@@ -19,7 +19,7 @@ await sharp(bar)
   .png()
   .toFile("public/og-image.png");
 
-await sharp("public/mji-logo-300w.png")
+await sharp("public/mji-logo-1200w.png")
   .resize({
     width: 180,
     height: 180,

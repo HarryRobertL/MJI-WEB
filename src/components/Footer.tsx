@@ -6,10 +6,10 @@ export function Footer() {
       <div className="wrap footer-grid">
         <div>
           <img
-            src="/mji-logo-300w.png"
+            src="/mji-logo-1200w.png"
             alt="McKenzie Jones International Ltd"
-            width={300}
-            height={114}
+            width={1200}
+            height={456}
             className="footer-mark"
           />
           <p>

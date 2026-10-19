@@ -322,9 +322,37 @@ button:focus-visible {
   width: fit-content;
 }
 
-.brand-mark {
+.brand-mark-wrap {
+  position: relative;
+  display: inline-grid;
   height: 40px;
   width: auto;
+}
+
+.brand-mark-wrap > .brand-mark {
+  grid-area: 1 / 1;
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+.brand-mark-base,
+.brand-mark-gold {
+  transition: opacity 200ms ease;
+}
+
+.brand-mark-gold {
+  opacity: 0;
+}
+
+@media (hover: hover) {
+  .brand:hover .brand-mark-base {
+    opacity: 0;
+  }
+
+  .brand:hover .brand-mark-gold {
+    opacity: 1;
+  }
 }
 
 .brand-name {
@@ -501,6 +529,7 @@ button:focus-visible {
   width: min(240px, 100%);
   height: auto;
   margin-bottom: 12px;
+  object-fit: contain;
 }
 
 .hero-copy h1 {
@@ -1343,7 +1372,8 @@ button:focus-visible {
     padding-block: 0;
   }
 
-  .brand-mark {
+  .brand-mark-wrap,
+  .brand-mark-wrap > .brand-mark {
     height: 52px;
   }
 
