@@ -10,22 +10,20 @@ export function Hero() {
 
       <div className="wrap hero-grid">
         <div className="hero-copy">
-          <p className="eyebrow animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
+          <p className="eyebrow hero-enter hero-enter-eyebrow">
             Physical security and risk consultancy
           </p>
-          <h1
-            id="hero-title"
-            className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both"
-          >
-            Protect people, assets, and <span className="accent-word">operations.</span>
+          <h1 id="hero-title" className="hero-enter hero-enter-title">
+            Protect people, assets, and{" "}
+            <span className="accent-word hero-enter-accent">operations.</span>
           </h1>
-          <p className="lead animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-both">
+          <p className="lead hero-enter hero-enter-lead">
             McKenzie Jones International provides strategic, operational, and
             tactical security for organisations and individuals exposed to
             elevated threat environments, geopolitical instability, and complex
             risk profiles.
           </p>
-          <div className="hero-actions animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
+          <div className="hero-actions hero-enter hero-enter-actions">
             <a className="btn btn-primary" href="#services">
               View services
             </a>
@@ -35,8 +33,8 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="hero-stage animate-in fade-in zoom-in-95 duration-700 delay-200 fill-mode-both">
-          <RotatingEarth width={360} height={360} className="hero-globe" />
+        <div className="hero-stage hero-enter hero-enter-stage">
+          <RotatingEarth width={480} height={480} className="hero-globe" />
         </div>
       </div>
 
@@ -46,8 +44,8 @@ export function Hero() {
             {services.map((service, index) => (
               <li
                 key={service.id}
-                className="animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
-                style={{ animationDelay: `${400 + index * 75}ms` }}
+                className="hero-enter hero-enter-path"
+                style={{ animationDelay: `${560 + index * 70}ms` }}
               >
                 <a href={`#${service.id}`}>
                   <span className="path-no">{service.number}</span>

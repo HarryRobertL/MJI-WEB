@@ -409,7 +409,8 @@ button:focus-visible {
 .hero {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
   padding: 64px 0 8px;
 }
 
@@ -418,6 +419,7 @@ button:focus-visible {
   position: absolute;
   inset: -16% -10% -22%;
   z-index: 0;
+  overflow: hidden;
   /* Soft feather — no hard crop against the page */
   mask-image: radial-gradient(
     ellipse 78% 62% at 68% 28%,
@@ -511,12 +513,14 @@ button:focus-visible {
 
 .hero-globe {
   width: 100%;
-  max-width: 360px;
+  max-width: 480px;
   margin-inline: auto;
 }
 
 .hero-globe canvas {
   display: block;
+  max-width: 100%;
+  height: auto;
   margin-inline: auto;
 }
 
@@ -534,6 +538,142 @@ button:focus-visible {
 
 .hero-copy h1 {
   max-width: 14ch;
+}
+
+/* Unified hero landing — starts only after preloader sets html.app-ready */
+.hero-enter {
+  --hero-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0;
+}
+
+.hero-enter-accent {
+  display: inline;
+  text-decoration-color: transparent;
+}
+
+html.app-ready .hero-enter {
+  animation-fill-mode: both;
+  animation-timing-function: var(--hero-ease);
+}
+
+html.app-ready .hero-enter-eyebrow {
+  animation-name: hero-in-eyebrow;
+  animation-duration: 700ms;
+  animation-delay: 40ms;
+}
+
+html.app-ready .hero-enter-title {
+  animation-name: hero-in-title;
+  animation-duration: 900ms;
+  animation-delay: 120ms;
+}
+
+html.app-ready .hero-enter-accent {
+  animation: hero-in-accent 700ms var(--hero-ease) 520ms both;
+}
+
+html.app-ready .hero-enter-lead {
+  animation-name: hero-in-lead;
+  animation-duration: 800ms;
+  animation-delay: 280ms;
+}
+
+html.app-ready .hero-enter-actions {
+  animation-name: hero-in-actions;
+  animation-duration: 750ms;
+  animation-delay: 400ms;
+}
+
+html.app-ready .hero-enter-stage {
+  animation-name: hero-in-stage;
+  animation-duration: 1000ms;
+  animation-delay: 160ms;
+}
+
+html.app-ready .hero-enter-path {
+  animation-name: hero-in-path;
+  animation-duration: 650ms;
+}
+
+@keyframes hero-in-eyebrow {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes hero-in-title {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+    letter-spacing: -0.06em;
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: -0.03em;
+    filter: blur(0);
+  }
+}
+
+@keyframes hero-in-accent {
+  from {
+    text-decoration-color: transparent;
+  }
+  to {
+    text-decoration-color: var(--signal);
+  }
+}
+
+@keyframes hero-in-lead {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-in-actions {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes hero-in-stage {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes hero-in-path {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .lead,
@@ -1248,7 +1388,17 @@ button:focus-visible {
   }
 
   .hero {
-    padding: 40px 0 4px;
+    padding: 40px 0 28px;
+  }
+
+  .hero-grid {
+    gap: 24px;
+  }
+
+  .hero-stage {
+    margin-bottom: 8px;
+    padding-inline: 8px;
+    box-sizing: border-box;
   }
 
   .hero-aurora {
@@ -1283,19 +1433,39 @@ button:focus-visible {
   }
 
   .hero-globe {
-    max-width: min(280px, 100%);
+    max-width: min(200px, calc(100% - 16px));
   }
 
-  .hero .animate-in,
-  .section-intro.animate-in,
-  .about-grid > div.animate-in {
-    animation-delay: 0ms !important;
-    animation-duration: 480ms !important;
+  html.app-ready .hero-enter {
+    animation-duration: 520ms !important;
   }
 
-  .path-list li.animate-in {
-    animation-delay: 0ms !important;
-    animation-duration: 480ms !important;
+  html.app-ready .hero-enter-eyebrow {
+    animation-delay: 20ms !important;
+  }
+
+  html.app-ready .hero-enter-title {
+    animation-delay: 80ms !important;
+  }
+
+  html.app-ready .hero-enter-accent {
+    animation-delay: 280ms !important;
+  }
+
+  html.app-ready .hero-enter-lead {
+    animation-delay: 140ms !important;
+  }
+
+  html.app-ready .hero-enter-actions {
+    animation-delay: 200ms !important;
+  }
+
+  html.app-ready .hero-enter-stage {
+    animation-delay: 100ms !important;
+  }
+
+  html.app-ready .hero-enter-path {
+    animation-delay: 240ms !important;
   }
 
   .btn:hover {
@@ -1357,9 +1527,43 @@ button:focus-visible {
   }
 
   .path-panel {
-    margin-top: 32px;
+    margin-top: 28px;
   }
 
+}
+
+/* Tablet: side-by-side hero without the full desktop chrome */
+@media (min-width: 768px) and (max-width: 991px) {
+  .hero {
+    padding: 48px 0 28px;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 28px;
+    align-items: center;
+  }
+
+  .hero-stage {
+    padding-inline: 0;
+    margin-bottom: 0;
+  }
+
+  .hero-globe {
+    max-width: min(300px, 100%);
+  }
+
+  .hero-copy h1 {
+    max-width: 12ch;
+  }
+
+  .path-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .path-panel {
+    margin-top: 36px;
+  }
 }
 
 @media (min-width: 992px) {
@@ -1465,6 +1669,18 @@ button:focus-visible {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .hero-enter,
+  .hero-enter-accent,
+  html.app-ready .hero-enter,
+  html.app-ready .hero-enter-accent {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    letter-spacing: inherit;
+    text-decoration-color: var(--signal);
+    animation: none !important;
   }
 
   *,

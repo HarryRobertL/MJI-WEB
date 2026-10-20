@@ -25,6 +25,12 @@ export function Preloader() {
     };
   }, []);
 
+  useEffect(() => {
+    if (phase === "out" || phase === "gone") {
+      document.documentElement.classList.add("app-ready");
+    }
+  }, [phase]);
+
   if (phase === "gone") {
     return null;
   }
