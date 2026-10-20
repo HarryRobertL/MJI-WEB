@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
-import type { Feature, FeatureCollection, MultiPolygon, Polygon } from "geojson";
+import type { FeatureCollection } from "geojson";
 
 interface RotatingEarthProps {
   width?: number;
@@ -8,98 +8,69 @@ interface RotatingEarthProps {
   className?: string;
 }
 
-type Ring = [number, number][];
+type WorldPayload = {
+  land: FeatureCollection;
+  dots: Float64Array;
+};
 
-/** Shared across remounts so resize never refetches or regenerates dots. */
-let landCache: FeatureCollection | null = null;
-let dotsCache: Float64Array | null = null;
-let loadPromise: Promise<void> | null = null;
+/**
+ * Same draw pipeline as the original smooth onyx globe:
+ * sphere fill → gold rim → graticule → land STROKE only → dots.
+ * White ocean + dark dots for the current look; no land fill (that caused the lag).
+ */
+let worldCache: WorldPayload | null = null;
+let worldPromise: Promise<WorldPayload> | null = null;
 
-function pointInPolygon(point: [number, number], polygon: Ring) {
-  const [x, y] = point;
-  let inside = false;
-
-  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-    const [xi, yi] = polygon[i];
-    const [xj, yj] = polygon[j];
-
-    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
-      inside = !inside;
-    }
-  }
-
-  return inside;
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    worldCache = null;
+    worldPromise = null;
+  });
 }
 
-function pointInFeature(point: [number, number], feature: Feature) {
-  const geometry = feature.geometry;
-  if (!geometry) {
-    return false;
-  }
-
-  if (geometry.type === "Polygon") {
-    const coordinates = (geometry as Polygon).coordinates as Ring[];
-    if (!pointInPolygon(point, coordinates[0])) {
-      return false;
-    }
-    return !coordinates.slice(1).some((ring) => pointInPolygon(point, ring));
-  }
-
-  if (geometry.type === "MultiPolygon") {
-    return (geometry as MultiPolygon).coordinates.some((polygon) => {
-      const rings = polygon as Ring[];
-      if (!pointInPolygon(point, rings[0])) {
-        return false;
-      }
-      return !rings.slice(1).some((ring) => pointInPolygon(point, ring));
-    });
-  }
-
-  return false;
-}
-
-function buildDots(land: FeatureCollection, stepSize = 1.35) {
-  const pairs: number[] = [];
-
-  for (const feature of land.features) {
-    const [[minLng, minLat], [maxLng, maxLat]] = d3.geoBounds(feature);
-    for (let lng = minLng; lng <= maxLng; lng += stepSize) {
-      for (let lat = minLat; lat <= maxLat; lat += stepSize) {
-        const point: [number, number] = [lng, lat];
-        if (pointInFeature(point, feature)) {
-          pairs.push(lng, lat);
-        }
-      }
-    }
-  }
-
-  return new Float64Array(pairs);
+function assetUrl(path: string) {
+  const base = import.meta.env.BASE_URL || "/";
+  return `${base}${path.replace(/^\//, "")}`;
 }
 
 function ensureWorldData() {
-  if (landCache && dotsCache) {
-    return Promise.resolve();
+  if (worldCache) {
+    return Promise.resolve(worldCache);
   }
 
-  if (!loadPromise) {
-    loadPromise = fetch("/data/ne_110m_land.json")
-      .then((response) => {
+  if (!worldPromise) {
+    worldPromise = Promise.all([
+      fetch(assetUrl("data/ne_110m_land.json"), { cache: "force-cache" }).then(async (response) => {
         if (!response.ok) {
-          throw new Error("Failed to load land data");
+          throw new Error(`Land map HTTP ${response.status}`);
         }
         return response.json() as Promise<FeatureCollection>;
-      })
-      .then((land) => {
-        landCache = land;
-        dotsCache = buildDots(land);
+      }),
+      fetch(assetUrl("data/globe-dots.json"), { cache: "force-cache" }).then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`Dots HTTP ${response.status}`);
+        }
+        const pairs = (await response.json()) as number[];
+        if (!pairs.length) {
+          throw new Error("Dots JSON is empty");
+        }
+        return new Float64Array(pairs);
+      }),
+    ])
+      .then(([land, dots]) => {
+        if (!land?.features?.length) {
+          throw new Error("Land map JSON is empty");
+        }
+        worldCache = { land, dots };
+        return worldCache;
       })
       .catch((error) => {
-        loadPromise = null;
+        worldPromise = null;
         throw error;
       });
   }
 
-  return loadPromise;
+  return worldPromise;
 }
 
 export default function RotatingEarth({
@@ -110,8 +81,9 @@ export default function RotatingEarth({
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [error, setError] = useState<string | null>(null);
-  const [size, setSize] = useState(() => Math.min(width, height));
-  const [ready, setReady] = useState(() => Boolean(landCache && dotsCache));
+  // Start at 0 so the draw effect mounts once at the measured size (avoids 480→378 remount thrash).
+  const [size, setSize] = useState(0);
+  const [ready, setReady] = useState(() => Boolean(worldCache));
 
   useEffect(() => {
     const host = containerRef.current;
@@ -124,7 +96,7 @@ export default function RotatingEarth({
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const next = Math.floor(Math.min(width, height, host.clientWidth || width));
-        setSize((current) => (Math.abs(current - next) < 8 ? current : next));
+        setSize((current) => (current === 0 || Math.abs(current - next) >= 8 ? next : current));
       });
     };
 
@@ -144,7 +116,8 @@ export default function RotatingEarth({
       return;
     }
 
-    const context = canvas.getContext("2d", { alpha: false });
+    // alpha: true so corners outside the sphere stay transparent (not an onyx square).
+    const context = canvas.getContext("2d", { alpha: true });
     if (!context) {
       return;
     }
@@ -169,32 +142,41 @@ export default function RotatingEarth({
       .clipAngle(90);
 
     const path = d3.geoPath(projection, context);
+    // Same graticule density as the original smooth globe.
     const graticule = d3.geoGraticule()();
     const rotation: [number, number] = [0, 0];
-    const rotationSpeed = 0.32;
-    const frameInterval = 33;
+    const degreesPerSecond = 14;
+    const scratch: [number, number] = [0, 0];
+    const deg = Math.PI / 180;
+    let backXY = new Float32Array(0);
+    let frontXY = new Float32Array(0);
+
     let cancelled = false;
     let autoRotate = !reduceMotion;
     let inView = true;
-    let rotationTimer: d3.Timer | null = null;
-    let lastFrame = 0;
+    let rafId = 0;
+    let lastTimestamp = 0;
+    let world: WorldPayload | null = worldCache;
 
     const render = () => {
-      const land = landCache;
-      const dots = dotsCache;
-      if (!land || !dots) {
+      if (!world) {
         return;
       }
 
+      const { land, dots } = world;
       const currentScale = projection.scale();
       const scaleFactor = currentScale / radius;
       const cx = containerWidth / 2;
       const cy = containerHeight / 2;
-      const dotSize = Math.max(1.1, 1.35 * scaleFactor);
 
-      context.fillStyle = "#F8F8F8";
-      context.fillRect(0, 0, containerWidth, containerHeight);
+      if (backXY.length < dots.length) {
+        backXY = new Float32Array(dots.length);
+        frontXY = new Float32Array(dots.length);
+      }
 
+      context.clearRect(0, 0, containerWidth, containerHeight);
+
+      // Current styling: paper-white ocean (was onyx). Same cheap solid fill.
       context.beginPath();
       context.arc(cx, cy, currentScale, 0, 2 * Math.PI);
       context.fillStyle = "#F8F8F8";
@@ -203,62 +185,102 @@ export default function RotatingEarth({
       context.lineWidth = 1.5 * scaleFactor;
       context.stroke();
 
+      const rotate = d3.geoRotation(projection.rotate());
+      const dotRadius = 1.2 * scaleFactor;
+      const dotSize = Math.max(1.2, dotRadius * 2);
+      const dotOffset = dotSize / 2;
+      let backCount = 0;
+      let frontCount = 0;
+
+      projection.clipAngle(180);
+      for (let i = 0; i < dots.length; i += 2) {
+        scratch[0] = dots[i];
+        scratch[1] = dots[i + 1];
+        const projected = projection(scratch);
+        if (!projected) {
+          continue;
+        }
+        const rotated = rotate(scratch);
+        if (!rotated) {
+          continue;
+        }
+        const z = Math.cos(rotated[1] * deg) * Math.cos(rotated[0] * deg);
+        if (z < 0) {
+          backXY[backCount] = projected[0];
+          backXY[backCount + 1] = projected[1];
+          backCount += 2;
+        } else {
+          frontXY[frontCount] = projected[0];
+          frontXY[frontCount + 1] = projected[1];
+          frontCount += 2;
+        }
+      }
+
+      context.fillStyle = "#0C120C";
+      context.globalAlpha = 0.22;
+      for (let i = 0; i < backCount; i += 2) {
+        context.fillRect(backXY[i] - dotOffset, backXY[i + 1] - dotOffset, dotSize, dotSize);
+      }
+
+      projection.clipAngle(90);
+      context.globalAlpha = 0.45;
       context.beginPath();
       path(graticule);
       context.strokeStyle = "#C8A45D";
       context.lineWidth = 1 * scaleFactor;
-      context.globalAlpha = 0.35;
       context.stroke();
+
       context.globalAlpha = 1;
-
       context.beginPath();
-      for (const feature of land.features) {
-        path(feature);
-      }
-      context.fillStyle = "#0C120C";
-      context.fill();
+      path(land);
       context.strokeStyle = "#C8A45D";
-      context.lineWidth = 0.75 * scaleFactor;
+      context.lineWidth = 1 * scaleFactor;
       context.stroke();
 
-      context.fillStyle = "#4A554A";
-      for (let i = 0; i < dots.length; i += 2) {
-        const projected = projection([dots[i], dots[i + 1]]);
-        if (!projected) {
-          continue;
-        }
-        const [x, y] = projected;
-        context.fillRect(x - dotSize / 2, y - dotSize / 2, dotSize, dotSize);
+      context.fillStyle = "#0C120C";
+      for (let i = 0; i < frontCount; i += 2) {
+        context.fillRect(frontXY[i] - dotOffset, frontXY[i + 1] - dotOffset, dotSize, dotSize);
       }
     };
 
     const stopRotation = () => {
-      rotationTimer?.stop();
-      rotationTimer = null;
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+      lastTimestamp = 0;
     };
 
-    const startRotation = () => {
-      if (reduceMotion || rotationTimer || !inView || !autoRotate || !landCache) {
+    const tick = (timestamp: number) => {
+      rafId = 0;
+      if (!autoRotate || !inView || cancelled || !world) {
         return;
       }
 
-      lastFrame = 0;
-      rotationTimer = d3.timer((elapsed) => {
-        if (!autoRotate || !inView) {
-          return;
-        }
-        if (elapsed - lastFrame < frameInterval) {
-          return;
-        }
-        lastFrame = elapsed;
-        rotation[0] += rotationSpeed;
-        projection.rotate(rotation);
-        render();
-      });
+      if (lastTimestamp === 0) {
+        lastTimestamp = timestamp;
+      }
+
+      const deltaSeconds = Math.min((timestamp - lastTimestamp) / 1000, 0.05);
+      lastTimestamp = timestamp;
+
+      rotation[0] += degreesPerSecond * deltaSeconds;
+      projection.rotate(rotation);
+      render();
+
+      rafId = requestAnimationFrame(tick);
+    };
+
+    const startRotation = () => {
+      if (reduceMotion || rafId || !inView || !autoRotate || !world) {
+        return;
+      }
+      lastTimestamp = 0;
+      rafId = requestAnimationFrame(tick);
     };
 
     const handlePointerDown = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse" || event.button !== 0 || !landCache) {
+      if (event.pointerType !== "mouse" || event.button !== 0 || !world) {
         return;
       }
 
@@ -267,21 +289,35 @@ export default function RotatingEarth({
       const startX = event.clientX;
       const startY = event.clientY;
       const startRotationAngles: [number, number] = [rotation[0], rotation[1]];
+      let dragRaf = 0;
 
       const handlePointerMove = (moveEvent: PointerEvent) => {
-        const sensitivity = 0.45;
+        const sensitivity = 0.5;
         rotation[0] = startRotationAngles[0] + (moveEvent.clientX - startX) * sensitivity;
         rotation[1] = Math.max(
           -90,
           Math.min(90, startRotationAngles[1] - (moveEvent.clientY - startY) * sensitivity),
         );
         projection.rotate(rotation);
-        render();
+        if (dragRaf) {
+          return;
+        }
+        dragRaf = requestAnimationFrame(() => {
+          dragRaf = 0;
+          if (!cancelled) {
+            render();
+          }
+        });
       };
 
       const handlePointerUp = () => {
         document.removeEventListener("pointermove", handlePointerMove);
         document.removeEventListener("pointerup", handlePointerUp);
+        if (dragRaf) {
+          cancelAnimationFrame(dragRaf);
+          dragRaf = 0;
+        }
+        render();
         window.setTimeout(() => {
           if (!reduceMotion) {
             autoRotate = true;
@@ -306,23 +342,24 @@ export default function RotatingEarth({
       { threshold: 0.05 },
     );
     visibilityObserver.observe(host);
-
     canvas.addEventListener("pointerdown", handlePointerDown);
 
     void ensureWorldData()
-      .then(() => {
+      .then((payload) => {
         if (cancelled) {
           return;
         }
+        world = payload;
+        setError(null);
         setReady(true);
         render();
-        if (reduceMotion) {
-          return;
+        if (!reduceMotion) {
+          startRotation();
         }
-        startRotation();
       })
-      .catch(() => {
+      .catch((loadError) => {
         if (!cancelled) {
+          console.error(loadError);
           setError("Failed to load land map data");
         }
       });
@@ -352,7 +389,7 @@ export default function RotatingEarth({
       <canvas
         ref={canvasRef}
         aria-label="Rotating world map"
-        style={{ opacity: ready ? 1 : 0, transition: "opacity 220ms ease" }}
+        style={{ opacity: ready ? 1 : 0, transition: "opacity 180ms ease" }}
       />
     </div>
   );
