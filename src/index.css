@@ -49,6 +49,7 @@
   --radius-card: 4px;
   --radius-btn: 10px;
   --header-offset: 88px;
+  --dock-offset: calc(72px + env(safe-area-inset-bottom, 0px));
   color-scheme: light;
 }
 
@@ -70,6 +71,7 @@ body {
   font-size: 15px;
   line-height: 1.55;
   text-rendering: optimizeLegibility;
+  padding-bottom: var(--dock-offset);
 }
 
 img {
@@ -1350,11 +1352,7 @@ html.app-ready .hero-enter-path {
 /* Mobile polish — desktop rules above 992px stay unchanged */
 @media (max-width: 991px) {
   :root {
-    --header-offset: 108px;
-  }
-
-  body {
-    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+    --header-offset: 64px;
   }
 
   .brand {
