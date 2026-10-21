@@ -1,12 +1,34 @@
-import { useActiveSection } from "../useActiveSection";
-import { primaryNav } from "../primaryNav";
-import { TubeLightNavbar } from "./ui/tubelight-navbar";
+import { useEffect, useState } from "react";
 
 export function Header() {
-  const activeHref = useActiveSection();
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    let lastY = window.scrollY;
+
+    const onScroll = () => {
+      const y = Math.max(0, window.scrollY);
+      const delta = y - lastY;
+      lastY = y;
+
+      if (y < 24) {
+        setHidden(false);
+        return;
+      }
+
+      if (delta > 6) {
+        setHidden(true);
+      } else if (delta < -6) {
+        setHidden(false);
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="site-header" id="top">
+    <header className={`site-header${hidden ? " is-away" : ""}`} id="top">
       <div className="wrap header-bar">
         <a
           className="brand"
@@ -38,15 +60,7 @@ export function Header() {
             />
           </span>
         </a>
-
-        <div className="nav">
-          <a className="btn btn-primary nav-cta" href="#services">
-            View services
-          </a>
-        </div>
       </div>
-
-      <TubeLightNavbar items={primaryNav} activeHref={activeHref} placement="bottom" />
     </header>
   );
 }

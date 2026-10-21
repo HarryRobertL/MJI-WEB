@@ -6,8 +6,13 @@ import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
 import { Operations } from "./components/Operations";
 import { Services } from "./components/Services";
+import { TubeLightNavbar } from "./components/ui/tubelight-navbar";
+import { primaryNav } from "./primaryNav";
+import { useActiveSection } from "./useActiveSection";
 
 export default function App() {
+  const activeHref = useActiveSection();
+
   return (
     <>
       <Preloader />
@@ -23,6 +28,12 @@ export default function App() {
         <Coverage />
       </main>
       <Footer />
+      <TubeLightNavbar
+        items={primaryNav}
+        activeHref={activeHref}
+        placement="bottom"
+        cta={{ href: "#enquiry", label: "Send enquiry" }}
+      />
     </>
   );
 }

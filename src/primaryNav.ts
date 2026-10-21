@@ -9,8 +9,16 @@ const navIcons = {
   "#contact": Mail,
 } as const;
 
-export const primaryNav: TubeNavItem[] = navItems.map((item) => ({
-  href: item.href,
-  label: item.label,
-  icon: navIcons[item.href],
-}));
+const pillOrder = ["#about", "#services", "#contact", "#clients"] as const;
+
+export const primaryNav: TubeNavItem[] = pillOrder.map((href) => {
+  const item = navItems.find((entry) => entry.href === href);
+  if (!item) {
+    throw new Error(`Missing nav item ${href}`);
+  }
+  return {
+    href: item.href,
+    label: item.label,
+    icon: navIcons[item.href],
+  };
+});

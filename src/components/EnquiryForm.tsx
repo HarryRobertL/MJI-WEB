@@ -55,7 +55,7 @@ export function EnquiryForm() {
   }
 
   return (
-    <div className="enquiry">
+    <div className="enquiry" id="enquiry">
       <div className="enquiry-intro">
         <h3>Confidential enquiry</h3>
         <p>
