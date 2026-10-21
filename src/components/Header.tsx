@@ -1,5 +1,20 @@
+import { Briefcase, Building2, Mail, Users } from "lucide-react";
 import { navItems } from "../content";
 import { useActiveSection } from "../useActiveSection";
+import { TubeLightNavbar, type TubeNavItem } from "./ui/tubelight-navbar";
+
+const navIcons = {
+  "#services": Briefcase,
+  "#about": Building2,
+  "#clients": Users,
+  "#contact": Mail,
+} as const;
+
+const primaryNav: TubeNavItem[] = navItems.map((item) => ({
+  href: item.href,
+  label: item.label,
+  icon: navIcons[item.href],
+}));
 
 export function Header() {
   const activeHref = useActiveSection();
@@ -38,24 +53,12 @@ export function Header() {
           </span>
         </a>
 
-        <nav className="nav" aria-label="Primary">
-          <ul className="nav-list">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <a
-                  className="nav-link"
-                  href={item.href}
-                  aria-current={activeHref === item.href ? "location" : undefined}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+        <div className="nav">
+          <TubeLightNavbar items={primaryNav} activeHref={activeHref} placement="inline" />
           <a className="btn btn-primary nav-cta" href="#services">
             View services
           </a>
-        </nav>
+        </div>
       </div>
     </header>
   );
