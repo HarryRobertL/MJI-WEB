@@ -25,6 +25,7 @@ export function TubeLightNavbar({
   cta,
 }: TubeLightNavbarProps) {
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [idle, setIdle] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -35,6 +36,40 @@ export function TubeLightNavbar({
   }, []);
 
   const isBottom = placement === "bottom";
+
+  useEffect(() => {
+    if (!isBottom) {
+      setIdle(false);
+      return;
+    }
+
+    const mobile = window.matchMedia("(max-width: 991px)");
+    let timer = 0;
+
+    const wake = () => {
+      window.clearTimeout(timer);
+      if (mobile.matches) {
+        setIdle(false);
+        return;
+      }
+      setIdle(false);
+      timer = window.setTimeout(() => setIdle(true), 700);
+    };
+
+    wake();
+    window.addEventListener("scroll", wake, { passive: true });
+    window.addEventListener("pointermove", wake, { passive: true });
+    window.addEventListener("keydown", wake);
+    mobile.addEventListener("change", wake);
+
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("scroll", wake);
+      window.removeEventListener("pointermove", wake);
+      window.removeEventListener("keydown", wake);
+      mobile.removeEventListener("change", wake);
+    };
+  }, [isBottom]);
 
   return (
     <nav
@@ -48,7 +83,10 @@ export function TubeLightNavbar({
       <div
         className={cn(
           "pointer-events-auto flex items-center rounded-full border border-[color-mix(in_srgb,var(--slate)_28%,var(--paper))] bg-[color-mix(in_srgb,var(--paper)_92%,transparent)] shadow-[0_10px_32px_color-mix(in_srgb,var(--ink)_12%,transparent)] backdrop-blur-md",
-          isBottom ? "gap-1.5 p-1.5 sm:gap-2 sm:p-2" : "gap-1 p-1 w-full min-[992px]:w-auto",
+          isBottom
+            ? "gap-1.5 p-1.5 sm:gap-2 sm:p-2 transition-opacity duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            : "gap-1 p-1 w-full min-[992px]:w-auto",
+          isBottom && idle && "opacity-[0.65] hover:opacity-100 focus-within:opacity-100",
         )}
       >
         {items.map((item) => {
