@@ -2,8 +2,9 @@ import fs from "node:fs";
 import * as d3 from "d3";
 
 const land = JSON.parse(fs.readFileSync("public/data/ne_110m_land.json", "utf8"));
-// ~15k dots: slightly denser than the original 1.28 (~13k).
-const step = Number(process.argv[2] || 1.20);
+// Honeycomb lattice (~15k). Column pitch `step`, row pitch step * √3/2.
+const step = Number(process.argv[2] || 1.28);
+const rowStep = step * Math.sqrt(3) / 2;
 
 function pointInPolygon(point, polygon) {
   const [x, y] = point;
@@ -35,14 +36,25 @@ function pointInFeature(point, feature) {
   return false;
 }
 
+function unitNoise(x, y, salt) {
+  const n = Math.sin(x * 127.1 + y * 311.7 + salt * 74.7) * 43758.5453;
+  return (n - Math.floor(n)) * 2 - 1;
+}
+
+const jitter = step * 0.04;
 const pairs = [];
 for (const feature of land.features) {
   const [[minLng, minLat], [maxLng, maxLat]] = d3.geoBounds(feature);
-  for (let lng = minLng; lng <= maxLng; lng += step) {
-    for (let lat = minLat; lat <= maxLat; lat += step) {
-      const point = [lng, lat];
+  let latIndex = 0;
+  for (let lat = minLat; lat <= maxLat; lat += rowStep, latIndex++) {
+    const rowOffset = (latIndex % 2) * step * 0.5;
+    for (let lng = minLng + rowOffset; lng <= maxLng; lng += step) {
+      const point = [
+        lng + unitNoise(lng, lat, 1) * jitter,
+        lat + unitNoise(lng, lat, 2) * jitter,
+      ];
       if (pointInFeature(point, feature)) {
-        pairs.push(Number(lng.toFixed(3)), Number(lat.toFixed(3)));
+        pairs.push(Number(point[0].toFixed(3)), Number(point[1].toFixed(3)));
       }
     }
   }

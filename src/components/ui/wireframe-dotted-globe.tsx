@@ -126,7 +126,9 @@ export default function RotatingEarth({
     const containerWidth = size;
     const containerHeight = size;
     const radius = Math.min(containerWidth, containerHeight) / 2.5;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const nativeDpr = window.devicePixelRatio || 1;
+    // Full DPR on the small mobile/tablet globe; cap desktop so fill cost stays bounded.
+    const dpr = size < 360 ? nativeDpr : Math.min(nativeDpr, 2);
 
     canvas.width = Math.floor(containerWidth * dpr);
     canvas.height = Math.floor(containerHeight * dpr);
@@ -186,9 +188,7 @@ export default function RotatingEarth({
       context.stroke();
 
       const rotate = d3.geoRotation(projection.rotate());
-      const dotRadius = 1.2 * scaleFactor;
-      const dotSize = Math.max(1.2, dotRadius * 2);
-      const dotOffset = dotSize / 2;
+      const dotRadius = Math.max(0.9, 1.2 * scaleFactor);
       let backCount = 0;
       let frontCount = 0;
 
@@ -216,11 +216,18 @@ export default function RotatingEarth({
         }
       }
 
+      const fillDots = (xy: Float32Array, count: number) => {
+        context.beginPath();
+        for (let i = 0; i < count; i += 2) {
+          context.moveTo(xy[i] + dotRadius, xy[i + 1]);
+          context.arc(xy[i], xy[i + 1], dotRadius, 0, Math.PI * 2);
+        }
+        context.fill();
+      };
+
       context.fillStyle = "#0C120C";
       context.globalAlpha = 0.22;
-      for (let i = 0; i < backCount; i += 2) {
-        context.fillRect(backXY[i] - dotOffset, backXY[i + 1] - dotOffset, dotSize, dotSize);
-      }
+      fillDots(backXY, backCount);
 
       projection.clipAngle(90);
       context.globalAlpha = 0.45;
@@ -238,9 +245,7 @@ export default function RotatingEarth({
       context.stroke();
 
       context.fillStyle = "#0C120C";
-      for (let i = 0; i < frontCount; i += 2) {
-        context.fillRect(frontXY[i] - dotOffset, frontXY[i + 1] - dotOffset, dotSize, dotSize);
-      }
+      fillDots(frontXY, frontCount);
     };
 
     const stopRotation = () => {

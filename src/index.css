@@ -526,8 +526,6 @@ button:focus-visible {
 
 .hero-globe canvas {
   display: block;
-  max-width: 100%;
-  height: auto;
   margin-inline: auto;
   /* Own compositor layer so aurora paints don't dirty the globe each frame */
   transform: translateZ(0);
