@@ -84,7 +84,7 @@ export function TubeLightNavbar({
         className={cn(
           "pointer-events-auto flex items-center rounded-full border border-[color-mix(in_srgb,var(--slate)_28%,var(--paper))] bg-[color-mix(in_srgb,var(--paper)_92%,transparent)] shadow-[0_10px_32px_color-mix(in_srgb,var(--ink)_12%,transparent)] backdrop-blur-md",
           isBottom
-            ? "gap-1.5 p-1.5 sm:gap-2 sm:p-2 transition-opacity duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            ? "max-w-[calc(100vw-24px)] gap-0.5 p-1 sm:gap-1.5 sm:p-1.5 min-[992px]:gap-2 min-[992px]:p-2 transition-opacity duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)]"
             : "gap-1 p-1 w-full min-[992px]:w-auto",
           isBottom && idle && "opacity-[0.65] hover:opacity-100 focus-within:opacity-100",
         )}
@@ -103,12 +103,18 @@ export function TubeLightNavbar({
                 "text-[var(--ink)]/75 hover:text-[var(--ink)]",
                 isActive && "text-[var(--ink)]",
                 isBottom
-                  ? "min-h-12 px-3.5 text-[15px] sm:min-h-13 sm:px-5"
+                  ? "min-h-10 px-2.5 text-[13px] sm:min-h-12 sm:px-3.5 sm:text-[15px] min-[992px]:min-h-13 min-[992px]:px-5"
                   : "min-h-11 flex-1 px-3 py-2 text-sm min-[992px]:flex-none min-[992px]:px-5",
               )}
             >
               {isBottom ? (
-                item.label
+                <>
+                  <span className="hidden min-[640px]:inline">{item.label}</span>
+                  <span className="inline-flex min-[640px]:hidden">
+                    <Icon size={18} strokeWidth={2.25} aria-hidden="true" />
+                    <span className="sr-only">{item.label}</span>
+                  </span>
+                </>
               ) : (
                 <>
                   <span className="hidden min-[992px]:inline">{item.label}</span>
@@ -145,7 +151,7 @@ export function TubeLightNavbar({
             className={cn(
               "inline-flex shrink-0 items-center justify-center rounded-full bg-[var(--ink)] font-semibold text-[var(--signal)] no-underline transition-colors hover:bg-[var(--signal)] hover:text-[var(--ink)]",
               isBottom
-                ? "min-h-12 px-4 text-[15px] sm:min-h-13 sm:px-5"
+                ? "min-h-10 px-3 text-[13px] sm:min-h-12 sm:px-4 sm:text-[15px] min-[992px]:min-h-13 min-[992px]:px-5"
                 : "min-h-11 px-4 text-sm min-[992px]:px-5",
             )}
           >

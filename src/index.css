@@ -512,8 +512,6 @@ button:focus-visible {
 .hero-globe canvas {
   display: block;
   margin-inline: auto;
-  /* Own compositor layer so aurora paints don't dirty the globe each frame */
-  transform: translateZ(0);
 }
 
 .hero-mark {
@@ -653,7 +651,7 @@ html.app-ready .hero-enter-path {
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: none;
   }
 }
 
@@ -1424,7 +1422,7 @@ html.app-ready .hero-enter-path {
   }
 
   .hero-globe {
-    max-width: min(200px, calc(100% - 16px));
+    max-width: min(240px, calc(100% - 16px));
   }
 
   html.app-ready .hero-enter {

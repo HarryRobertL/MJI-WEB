@@ -127,14 +127,16 @@ export default function RotatingEarth({
     const containerHeight = size;
     const radius = Math.min(containerWidth, containerHeight) / 2.5;
     const nativeDpr = window.devicePixelRatio || 1;
-    // Full DPR on the small mobile/tablet globe; cap desktop so fill cost stays bounded.
-    const dpr = size < 360 ? nativeDpr : Math.min(nativeDpr, 2);
+    // Mobile/tablet: at least 2× and up to the device DPR so the small globe stays sharp.
+    const dpr = size < 400 ? Math.min(Math.max(nativeDpr, 2), 3) : Math.min(nativeDpr, 2);
 
     canvas.width = Math.floor(containerWidth * dpr);
     canvas.height = Math.floor(containerHeight * dpr);
     canvas.style.width = `${containerWidth}px`;
     canvas.style.height = `${containerHeight}px`;
     canvas.style.touchAction = "pan-y";
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const projection = d3
