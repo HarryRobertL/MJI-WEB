@@ -71,7 +71,7 @@ export function PrivacyPage() {
 
           <h2>How long we keep it</h2>
           <p>
-            Retention period: [RETENTION PERIOD — e.g. 12 months for unanswered
+            Retention period: [RETENTION PERIOD, e.g. 12 months for unanswered
             enquiries, longer where a client relationship follows]. Replace this
             placeholder before launch.
           </p>

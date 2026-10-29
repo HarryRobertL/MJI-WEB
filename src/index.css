@@ -189,9 +189,9 @@ button:focus-visible {
 
 .eyebrow::before {
   content: "";
-  width: 10px;
-  height: 10px;
-  background: var(--slate);
+  width: 18px;
+  height: 2px;
+  background: var(--signal);
   flex: none;
 }
 
@@ -241,7 +241,6 @@ button:focus-visible {
   background: var(--signal);
   color: var(--ink);
   border-color: var(--ink);
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--ink) 18%, transparent);
 }
 
 .btn-secondary {
@@ -254,7 +253,6 @@ button:focus-visible {
 .btn-secondary:hover {
   background: var(--signal);
   color: var(--ink);
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--signal) 28%, transparent);
 }
 
 .more {
@@ -471,8 +469,8 @@ button:focus-visible {
   background-size: 200%, 100%;
   mix-blend-mode: soft-light;
   opacity: 0.85;
-  animation: aurora var(--aurora-speed) linear infinite;
-  will-change: transform;
+  animation: none;
+  will-change: auto;
 }
 
 @keyframes aurora {
@@ -493,7 +491,7 @@ button:focus-visible {
 .hero-grid {
   display: grid;
   gap: 32px;
-  align-items: center;
+  align-items: start;
 }
 
 .hero-stage {
@@ -527,7 +525,8 @@ button:focus-visible {
 }
 
 .hero-copy h1 {
-  max-width: 14ch;
+  max-width: 18ch;
+  font-size: clamp(40px, 5.4vw, 68px);
 }
 
 /* Unified hero landing — starts only after preloader sets html.app-ready */
@@ -546,16 +545,10 @@ html.app-ready .hero-enter {
   animation-timing-function: var(--hero-ease);
 }
 
-html.app-ready .hero-enter-eyebrow {
-  animation-name: hero-in-eyebrow;
-  animation-duration: 700ms;
-  animation-delay: 40ms;
-}
-
 html.app-ready .hero-enter-title {
   animation-name: hero-in-title;
   animation-duration: 900ms;
-  animation-delay: 120ms;
+  animation-delay: 80ms;
 }
 
 html.app-ready .hero-enter-accent {
@@ -578,24 +571,6 @@ html.app-ready .hero-enter-stage {
   animation-name: hero-in-stage;
   animation-duration: 1000ms;
   animation-delay: 160ms;
-}
-
-html.app-ready .hero-enter-path {
-  animation-name: hero-in-path;
-  animation-duration: 650ms;
-}
-
-@keyframes hero-in-eyebrow {
-  from {
-    opacity: 0;
-    transform: translateX(-12px);
-    filter: blur(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-    filter: blur(0);
-  }
 }
 
 @keyframes hero-in-title {
@@ -655,17 +630,6 @@ html.app-ready .hero-enter-path {
   }
 }
 
-@keyframes hero-in-path {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .lead,
 .section-intro p,
 .about-copy > p,
@@ -687,12 +651,13 @@ html.app-ready .hero-enter-path {
 }
 
 .path-panel {
-  margin-top: 48px;
+  margin-top: 32px;
   border-top: 1px solid var(--color-border);
 }
 
 .path-list {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -703,7 +668,7 @@ html.app-ready .hero-enter-path {
   gap: 12px;
   align-items: baseline;
   min-height: 44px;
-  padding: 18px 16px 18px 0;
+  padding: 10px 0;
   color: var(--ink);
   font-weight: 600;
   text-decoration: none;
@@ -930,7 +895,6 @@ html.app-ready .hero-enter-path {
   background: var(--ink);
   color: var(--signal);
   border-color: var(--signal);
-  box-shadow: 0 4px 14px color-mix(in srgb, var(--ink) 16%, transparent);
   transform: none;
 }
 
@@ -1213,58 +1177,12 @@ html.app-ready .hero-enter-path {
 
 .feature-card {
   background: var(--paper);
-  background-image: radial-gradient(50% 80% at 25% 0%, var(--warm-glow), transparent);
+  border: 1px solid var(--color-border);
+  overflow: visible;
 }
 
-.feature-spotlight {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 300ms ease;
-  background: radial-gradient(
-    circle 180px at var(--mx, 50%) var(--my, 0%),
-    color-mix(in srgb, var(--signal) 28%, transparent),
-    transparent 70%
-  );
-}
-
-.feature-card:hover .feature-spotlight {
-  opacity: 1;
-}
-
-.feature-rail {
-  position: absolute;
-  background: var(--color-border);
-  pointer-events: none;
-}
-
-.feature-rail-y {
-  top: -16px;
-  bottom: -16px;
-  width: 1px;
-}
-
-.feature-rail-start {
-  left: 0;
-}
-
-.feature-rail-end {
-  right: 0;
-}
-
-.feature-rail-x {
-  left: -16px;
-  right: -16px;
-  height: 1px;
-}
-
-.feature-rail-top {
-  top: 0;
-}
-
-.feature-rail-bottom {
-  bottom: 0;
+.feature-card-lead {
+  border-color: var(--signal);
 }
 
 .feature-body {
@@ -1285,7 +1203,7 @@ html.app-ready .hero-enter-path {
   padding: 10px 12px;
   border: 1px solid var(--slate);
   border-radius: 4px;
-  background: rgb(255 255 255 / 0.7);
+  background: var(--paper);
   color: var(--slate);
   font-size: 13px;
   font-weight: 700;
@@ -1429,10 +1347,6 @@ html.app-ready .hero-enter-path {
     animation-duration: 520ms !important;
   }
 
-  html.app-ready .hero-enter-eyebrow {
-    animation-delay: 20ms !important;
-  }
-
   html.app-ready .hero-enter-title {
     animation-delay: 80ms !important;
   }
@@ -1450,11 +1364,7 @@ html.app-ready .hero-enter-path {
   }
 
   html.app-ready .hero-enter-stage {
-    animation-delay: 100ms !important;
-  }
-
-  html.app-ready .hero-enter-path {
-    animation-delay: 240ms !important;
+    animation-delay: 40ms !important;
   }
 
   .btn:hover {
@@ -1516,9 +1426,15 @@ html.app-ready .hero-enter-path {
   }
 
   .path-panel {
-    margin-top: 28px;
+    margin-top: 24px;
   }
 
+}
+
+@media (max-width: 767px) {
+  .hero-stage {
+    order: -1;
+  }
 }
 
 /* Tablet: side-by-side hero without the full desktop chrome */
@@ -1530,7 +1446,7 @@ html.app-ready .hero-enter-path {
   .hero-grid {
     grid-template-columns: 1.15fr 0.85fr;
     gap: 28px;
-    align-items: center;
+    align-items: start;
   }
 
   .hero-stage {
@@ -1543,15 +1459,7 @@ html.app-ready .hero-enter-path {
   }
 
   .hero-copy h1 {
-    max-width: 12ch;
-  }
-
-  .path-list {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .path-panel {
-    margin-top: 36px;
+    max-width: 16ch;
   }
 }
 
@@ -1586,16 +1494,7 @@ html.app-ready .hero-enter-path {
   .hero-grid {
     grid-template-columns: 1.15fr 0.85fr;
     gap: 48px;
-    align-items: center;
-  }
-
-  .path-list {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .path-list a {
-    border-bottom: 0;
-    padding-right: 20px;
+    align-items: start;
   }
 
   .feature-grid,
@@ -1622,15 +1521,15 @@ html.app-ready .hero-enter-path {
   .feature-grid {
     grid-template-columns: 1fr 1fr;
   }
+
+  .feature-card-lead {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
-  }
-
-  .feature-spotlight {
-    display: none;
   }
 
   .hero-aurora-glow::after {

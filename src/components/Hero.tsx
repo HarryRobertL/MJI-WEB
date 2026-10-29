@@ -10,51 +10,42 @@ export function Hero() {
 
       <div className="wrap hero-grid">
         <div className="hero-copy">
-          <p className="eyebrow hero-enter hero-enter-eyebrow">
-            Physical security and risk consultancy
-          </p>
           <h1 id="hero-title" className="hero-enter hero-enter-title">
-            Protect people, assets, and{" "}
-            <span className="accent-word hero-enter-accent">operations.</span>
+            Physical security for hostile, denied, and{" "}
+            <span className="accent-word hero-enter-accent">sensitive environments.</span>
           </h1>
           <p className="lead hero-enter hero-enter-lead">
-            McKenzie Jones International provides strategic, operational, and
-            tactical security for organisations and individuals exposed to
-            elevated threat environments, geopolitical instability, and complex
-            risk profiles.
+            McKenzie Jones International works with corporations, family offices,
+            humanitarian teams, investors, and government principals whose
+            operations cannot absorb a public failure.
           </p>
           <div className="hero-actions hero-enter hero-enter-actions">
-            <a className="btn btn-primary" href="#services">
-              View services
+            <a className="btn btn-primary" href="#enquiry">
+              <span className="max-[479px]:hidden">Send a confidential enquiry</span>
+              <span className="min-[480px]:hidden">Send an enquiry</span>
             </a>
-            <a className="btn btn-secondary" href="#contact">
-              Contact the firm
+            <a className="btn btn-secondary" href="#services">
+              Read the service lines
             </a>
           </div>
+
+          <nav className="path-panel" aria-label="Service lines">
+            <ol className="path-list">
+              {services.map((service) => (
+                <li key={service.id}>
+                  <a href={`#${service.id}`}>
+                    <span className="path-no">{service.number}</span>
+                    <span>{service.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
         </div>
 
         <div className="hero-stage hero-enter hero-enter-stage">
           <RotatingEarth width={480} height={480} className="hero-globe" />
         </div>
-      </div>
-
-      <div className="wrap">
-        <nav className="path-panel" aria-label="Service paths">
-          <ol className="path-list">
-            {services.map((service, index) => (
-              <li
-                key={service.id}
-                className="hero-enter hero-enter-path"
-                style={{ animationDelay: `${560 + index * 70}ms` }}
-              >
-                <a href={`#${service.id}`}>
-                  <span className="path-no">{service.number}</span>
-                  <span>{service.title}</span>
-                </a>
-              </li>
-            ))}
-          </ol>
-        </nav>
       </div>
     </section>
   );

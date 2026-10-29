@@ -14,16 +14,15 @@ export function About() {
         <div className="about-copy">
           <p>
             McKenzie Jones International is a specialist physical security and
-            risk consultancy operating at the highest end of the market. The
-            firm employs military and former government veterans with
-            operational experience in hostile, denied, and sensitive
-            environments.
+            risk consultancy. The firm employs military and former government
+            veterans with operational experience in hostile, denied, and
+            sensitive environments.
           </p>
           <p>
             The work combines intelligence-led risk analysis, operational
-            excellence, discreet white-glove service, and rapid deployment.
-            The aim is to be the most trusted specialist security risk
-            consultancy for high-risk and complex global operations.
+            planning, discreet white-glove service, and rapid deployment for
+            organisations and individuals whose operations cannot absorb a
+            public failure.
           </p>
           <ul className="audience">
             {audiences.map((item) => (
@@ -56,7 +55,7 @@ export function About() {
                 {credentials.map((item) => (
                   <li key={item.title}>
                     <strong>{item.title}</strong>
-                    {item.detail ? ` — ${item.detail}` : null}
+                    {item.detail ? `: ${item.detail}` : null}
                   </li>
                 ))}
               </ul>
